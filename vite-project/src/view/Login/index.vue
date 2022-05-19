@@ -22,7 +22,10 @@
 
 <script setup>
 import { ref, reactive } from "vue";
+import {useRouter} from 'vue-router'
 import {Login} from '../../api/index'
+
+const router = useRouter() //实例化
 const ruleFormRef = ref();
 const temp = reactive({
   password: "",
@@ -46,7 +49,7 @@ function login(temp) {
                 let {code, message} = res.data
                 if(code == 200) {
                     // 跳转
-
+                    router.push('/home')
                 } else {
                     alert(message)
                 }
