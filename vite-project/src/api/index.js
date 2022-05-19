@@ -1,8 +1,8 @@
-import axios from "@/utils/request";
+import axios from "../utils/request";
 
 export function Login(data) {
     return axios({
-        method: 'post',
+        method: 'get',
         url: `get_login`,
         data
     })

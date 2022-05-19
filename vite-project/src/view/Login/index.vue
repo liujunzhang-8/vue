@@ -22,6 +22,7 @@
 
 <script setup>
 import { ref, reactive } from "vue";
+import {Login} from '../../api/index'
 const ruleFormRef = ref();
 const temp = reactive({
   password: "",
@@ -38,7 +39,22 @@ const rules = reactive({
   ],
 });
 // 登录函数
-function login() {
-    console.log('点击到登录了');
+function login(temp) {
+    ruleFormRef.value.validate(valid => {
+        if(valid) {
+            Login().then(res => {
+                let {code, message} = res.data
+                if(code == 200) {
+                    // 跳转
+
+                } else {
+                    alert(message)
+                }
+            })
+        } else {
+            console.log('error submit!');
+        }
+    })
+    
 }
 </script>
