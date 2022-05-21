@@ -20,6 +20,15 @@ export default defineConfig({
             '~': resolve(__dirname, './')
         }
     },
+    server: {
+        proxy: {
+            '/api': {
+                target: 'http://backend-api-02.newbee.ltd/manage-api/v1',
+                changeOrigin: true,
+                rewrite: path => resolve(/^\/api/, '')
+            }
+        }
+    },
     plugins: [
         vue(),
         AutoImport({
