@@ -1,22 +1,23 @@
 <script setup>
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from './components/HelloWorld.vue'
+import { reactive } from 'vue'
+
+const state = reactive({
+    defaultOpen: ['1', '2', '3', '4'],
+    showMenu: true,
+    currentPath: '/dashboard',
+    count: {
+        number: 1
+    }
+})
 </script>
 
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="start vue3 + vite" />
-  <router-view></router-view>
+  <div class="layout">
+      <el-container v-if="state.showMenu" class="container">新站点分手快乐</el-container>
+      <el-container v-else class="container"></el-container>
+  </div>
 </template>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
 </style>
