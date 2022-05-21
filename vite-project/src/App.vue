@@ -24,7 +24,6 @@ const state = reactive({
                       <img src="./assets/logo.png" alt="">
                       <span>vue3 admin</span>
               </div>
-              <div class="line"></div>
           </el-aside>
           <el-container class="content">
               <Header />
@@ -58,6 +57,7 @@ const state = reactive({
                     align-items: center;
                     justify-content: center;
                     height: 50px;
+                    border-bottom: 1px solid hsla(0, 0%, 100%, .2);
                     img {
                         width: 30px;
                         height: 30px;
@@ -67,10 +67,6 @@ const state = reactive({
                         font-size: 20px;
                         color: #fff;
                     }
-                }
-                .line {
-                    border-top: 1px solid hsla(0, 0%, 100%, .5);
-                    border-bottom: 1px solid rgba(0,0,0,.2);
                 }
             }
             .aside::-webkit-scrollbar {
