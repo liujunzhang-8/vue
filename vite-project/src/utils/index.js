@@ -1,5 +1,5 @@
 // 存储数据
-export function localSet (key) {
+export function localSet (key, value) {
     /** JSON.stringify 将js值转换为json字符串 */
     window.localStorage.setItem(key, JSON.stringify(value))
 }

@@ -36,8 +36,8 @@ import md5 from 'js-md5'
 
 const ruleFormRef = ref(null);
 const temp = reactive({
-  password: "",
-  username: "",
+  password: "123456",
+  username: "admin",
 });
 
 const state = reactive({
@@ -58,12 +58,16 @@ const rules = reactive({
 const submitForm = async () => {
     ruleFormRef.value.validate(valid => {
         if(valid) {
-            console.log('校验通过');
             axios.post('/adminUser/login', {
-                username: temp.username || '',
+                userName: temp.username || '',
                 passwordMd5: md5(temp.password)
             }).then (res => {
-                console.log('秦穆公求成');
+                console.log('res', res);
+                localSet('token', res)
+                window.location.href = '/'
+                
+            }).catch(err => {
+                ElMessage.error(err)
             })
         } else {
             console.log('error submit!!!');

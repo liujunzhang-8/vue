@@ -15,6 +15,7 @@
     "echarts": "^5.2.2",
     "element-plus": "^2.2.0",
     "js-md5": "^0.7.3",
+    "pushstate-server": "^3.1.0",
     "sass": "^1.52.1",
     "vue": "^3.2.13",
     "vue-loader": "^17.0.0",

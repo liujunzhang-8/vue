@@ -4,7 +4,7 @@ import { localGet } from './index';
 import config from '~/config';
 import { ElMessage } from 'element-plus'
 
-axios.defaults.baseURL = config[import.meta.env.MODE].baseURL
+axios.defaults.baseURL = config[import.meta.env.MODE].baseUrl
 // token 鉴权
 axios.defaults.withCredentials = true
 // 请求头，headers 信息
