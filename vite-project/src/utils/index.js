@@ -23,7 +23,7 @@ export function localRemove (key) {
 export const pathMap = {
     login: '登录',
     home: '首页',
-    introduce: '系统介绍',
+    introduce: '数据大屏',
     add: '添加商品',
     swiper: '轮播图配置',
     hot: '热销商品配置',

@@ -15,7 +15,7 @@ const routes = [
         path: '/home',
         component: () => import('@/view/Home/index.vue')
     },
-    /** 系统介绍 */
+    /** 数据大屏 */
     {
         name: 'introduce',
         path: '/introduce',

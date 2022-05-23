@@ -95,7 +95,7 @@ onUnmounted(() => {
                 ><el-icon><HomeFilled /></el-icon>首页</el-menu-item
               >
               <el-menu-item index="/introduce"
-                ><el-icon><TrendCharts /></el-icon>系统介绍</el-menu-item
+                ><el-icon><TrendCharts /></el-icon>数据大屏</el-menu-item
               >
               <el-menu-item index="/add"
                 ><el-icon><CirclePlusFilled /></el-icon>添加商品</el-menu-item
