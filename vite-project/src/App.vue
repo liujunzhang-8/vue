@@ -26,7 +26,7 @@ components: {
 const noMenu = ['/login']
 const router = useRouter()
 const state = reactive({
-  defaultOpen: ["1"],
+  defaultOpen: [],
   showMenu: true,
   currentPath: "/home",
   count: {
@@ -91,13 +91,13 @@ onUnmounted(() => {
               <span>Home</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item
+              <el-menu-item index="/home"
+                ><el-icon><HomeFilled /></el-icon>首页</el-menu-item
+              >
+              <el-menu-item index="/introduce"
                 ><el-icon><TrendCharts /></el-icon>系统介绍</el-menu-item
               >
-              <el-menu-item
-                ><el-icon><HomeFilled /></el-icon>Home</el-menu-item
-              >
-              <el-menu-item
+              <el-menu-item index="/add"
                 ><el-icon><CirclePlusFilled /></el-icon>添加商品</el-menu-item
               >
             </el-menu-item-group>
@@ -107,16 +107,16 @@ onUnmounted(() => {
               <span>首页配置</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item
+              <el-menu-item index="/swiper"
                 ><el-icon><PictureFilled /></el-icon>轮播图配置</el-menu-item
               >
-              <el-menu-item
+              <el-menu-item index="/hot"
                 ><el-icon><StarFilled /></el-icon>热销商品配置</el-menu-item
               >
-              <el-menu-item
+              <el-menu-item index="/new"
                 ><el-icon><SoldOut /></el-icon>新品上线配置</el-menu-item
               >
-              <el-menu-item
+              <el-menu-item index="/recommend"
                 ><el-icon><Pointer /></el-icon>为你推荐配置</el-menu-item
               >
             </el-menu-item-group>
@@ -126,16 +126,16 @@ onUnmounted(() => {
               <span>模块管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item
+              <el-menu-item index="/category"
                 ><el-icon><Menu /></el-icon>分类管理</el-menu-item
               >
-              <el-menu-item
+              <el-menu-item index="/good"
                 ><el-icon><GoodsFilled /></el-icon>商品管理</el-menu-item
               >
-              <el-menu-item
+              <el-menu-item index="/guest"
                 ><el-icon><Avatar /></el-icon>会员管理</el-menu-item
               >
-              <el-menu-item
+              <el-menu-item index="/order"
                 ><el-icon><Document /></el-icon>订单管理</el-menu-item
               >
             </el-menu-item-group>
@@ -145,7 +145,7 @@ onUnmounted(() => {
               <span>系统管理</span>
             </template>
             <el-menu-item-group>
-              <el-menu-item
+              <el-menu-item index="/account"
                 ><el-icon><Lock /></el-icon>修改密码</el-menu-item
               >
             </el-menu-item-group>
