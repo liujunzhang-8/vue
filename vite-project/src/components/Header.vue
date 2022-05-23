@@ -17,7 +17,7 @@
         <template #reference>
           <div class="author">
             <el-icon class="icon"><Avatar /></el-icon>
-            <span>username</span>
+            <span>{{state.userInfo && state.userInfo.nickName }}</span>
             <el-icon><ArrowDownBold /></el-icon>
           </div>
         </template>
