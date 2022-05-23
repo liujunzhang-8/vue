@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from "vue";
+import { reactive, onUnmounted } from "vue";
 import Header from "@/components/Header.vue";
 import Footer from "@/components/Footer.vue";
 import { useRouter } from "vue-router";
@@ -18,9 +18,13 @@ import {
   Document,
   Lock,
 } from "@element-plus/icons-vue";
+
 components: {
   Header, Footer;
 }
+
+const noMenu = ['/login']
+const router = useRouter()
 const state = reactive({
   defaultOpen: ["1"],
   showMenu: true,
@@ -28,7 +32,43 @@ const state = reactive({
   count: {
     number: 1,
   },
-});
+})
+
+// 路由拦截，判断登录态
+const unwatch = router.beforeEach((to, from, next) => {
+    if(to.path == '/login') {
+        // 如果路径是 /login 就正常执行
+        next()
+    } else {
+        // 如果路径不是 /login，判断是否有token
+        if(!localGet('token')) {
+            // 如果没有token，则跳至登录页面
+            next({path: '/login'})
+        } else {
+            // 否则继续执行
+            next()
+        }
+    }
+    state.showMenu = !noMenu.includes(to.path)
+    state.currentPath = to.path
+    document.title = pathMap[to.name]
+})
+
+// 监听浏览器原生回退事件
+if(window.history && window.history.pushState) {
+    history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', () => {
+        if(!localGet('token')) {
+           state.showMenu = false 
+        }
+    }, false)
+}
+
+onUnmounted(() => {
+    unwatch()
+})
+
+
 </script>
 
 <template>
