@@ -4,7 +4,7 @@
       <el-icon v-if="state.hasBack" class="el-icon-back" @click="back"
         ><ArrowLeftBold
       /></el-icon>
-      <span style="font-size: 18px">菜单名</span>
+      <span style="font-size: 18px">{{state.name}}</span>
     </div>
     <div class="right">
       <!-- 气泡卡片 -->
@@ -22,8 +22,8 @@
           </div>
         </template>
         <div class="nickname">
-          <p>登录名：张三</p>
-          <p>昵称：湛战马</p>
+          <p>登录名：{{state.userInfo && state.userInfo.loginUserName}}</p>
+          <p>昵称：{{state.userInfo && state.userInfo.nickName || ''}}</p>
           <el-tag effect="dark" size="small" class="logout" @click="logout"
             >退出</el-tag
           >
@@ -34,13 +34,15 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import axios from '@/utils/axios'
+import { localRemove, pathMap } from '@/utils'
 import { ArrowLeftBold, ArrowDownBold, Avatar } from "@element-plus/icons-vue";
 
 const router = useRouter();
 const state = reactive({
-  name: "dashboard",
+  name: "home",
   userInfo: null,
   hasBack: false,
 });
@@ -49,9 +51,39 @@ const back = () => {
   router.back();
 };
 
+const getUserInfo = async () => {
+    const userInfo = await axios.get('/adminUser/profile')
+    userInfo.nickName = 'Gorgio'
+    state.userInfo = userInfo
+}
+
 const logout = () => {
-  console.log("准备推出了");
+  axios.delete('/logout').then(() => {
+      localRemove('token')
+      window.location.reload()
+  })
 };
+
+onMounted(() => {
+    // 判断是否登录态
+    const pathname = window.location.hash.split('/')[1] || ''
+    // 判断访问路径是不是login 不是则查询个人信息
+    if(!['login'].includes(pathname)) {
+        getUserInfo()
+    }
+})
+
+// 路由守卫
+router.afterEach(to => {
+    console.log('to', to);
+    const { id } = to.query
+    state.name = pathMap[to.name]
+    if(id && to.name == 'add') {
+        state.name = '编辑商品'
+    }
+    state.hasBack = ['level2', 'level3', 'order_detail'].includes(to.name)
+})
+
 </script>
 
 <style lang="scss" scoped>
