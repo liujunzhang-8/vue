@@ -20,7 +20,8 @@
     "vue": "^3.2.13",
     "vue-loader": "^17.0.0",
     "vue-router": "^4.0.15",
-    "vuex": "^4.0.2"
+    "vuex": "^4.0.2",
+    "wangeditor": "^4.6.10"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.3.3",
