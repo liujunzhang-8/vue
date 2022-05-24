@@ -214,11 +214,22 @@ onMounted(() => {
     },
   });
   instance.create();
+  if (id) {
+      axios.get(`/goods/${id}`).then(res => {
+          
+      })
+  }
 });
 
 const submitAdd = () => {
     goodRef.value.validate((valid) => {
-        console.log('的身份哈哈使得否');
+        if(valid) {
+            let httpOption = axios.post
+            let params = {
+                goodsCategoryId: state.categoryId,
+                goodsCoverImg: state.goodForm.goodsCoverImg,
+            }
+        }
     })
 }
 
