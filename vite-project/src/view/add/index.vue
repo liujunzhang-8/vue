@@ -1,67 +1,251 @@
 <template>
-    <div class='add'>
-        <el-card class="add-container">
-            <el-form label-width="100px" ref="goodRef" class="goodForm">
-                <el-form-item required label="商品分类">
-                    <el-cascader :placeholder="defaultCase" style="width: 300px;"></el-cascader>
-                </el-form-item>
-                <el-form-item label="商品名称">
-                    <el-input style="width: 300px;" placeholder="请输入商品名称"></el-input>
-                </el-form-item>
-                <el-form-item label="商品简介">
-                    <el-input style="width: 300px;" type="textarea" placeholder="请输入商品简介(100字)"></el-input>
-                </el-form-item>
-                <el-form-item label="商品价格">
-                    <el-input style="width: 300px;" min="0" type="number" placeholder="请输入商品价格"></el-input>
-                </el-form-item>
-                <el-form-item label="商品售卖价">
-                    <el-input style="width: 300px;" min="0" type="number" placeholder="请输入商品售价"></el-input>
-                </el-form-item>
-                <el-form-item label="商品库存">
-                    <el-input style="width: 300px;" min="0" type="number" placeholder="请输入商品库存"></el-input>
-                </el-form-item>
-                <el-form-item label="商品标签">
-                    <el-input style="width: 300px;" placeholder="请输入商品小标签"></el-input>
-                </el-form-item>
-                <el-form-item label="上架状态">
-                    <el-radio-group>
-                        <el-radio label="0">上架</el-radio>
-                        <el-radio label="1">下架</el-radio>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item label="商品主图">
-                    <el-upload class="avatar-uploader" :action="uploadImgServer" accept="jpg,jpeg,png">
-
-                    </el-upload>
-                </el-form-item>
-                <el-form-item label="详情内容">
-                    <div ref="editor"></div>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary">{{ state.id ? '立即修改' : '立即创建' }}</el-button>
-                </el-form-item>
-            </el-form>
-        </el-card>
-    </div>
+  <div class="add">
+    <el-card class="add-container">
+      <el-form
+        :model="goodForm"
+        :rules="rules"
+        label-width="100px"
+        ref="goodRef"
+        class="goodForm"
+      >
+        <el-form-item required label="商品分类">
+          <el-cascader
+            :placeholder="state.defaultCase"
+            style="width: 300px"
+            :props="state.category"
+            @change="handleChangeCate"
+          ></el-cascader>
+        </el-form-item>
+        <el-form-item label="商品名称" prop="goodsName">
+          <el-input
+            style="width: 300px"
+            placeholder="请输入商品名称"
+            v-model="goodForm.goodsName"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="商品简介" prop="goodsIntro">
+          <el-input
+            style="width: 300px"
+            type="textarea"
+            placeholder="请输入商品简介(100字)"
+            v-model="goodForm.goodsIntro"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="商品价格" prop="originalPrice">
+          <el-input
+            style="width: 300px"
+            min="0"
+            type="number"
+            placeholder="请输入商品价格"
+            v-model="goodForm.originalPrice"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="商品售卖价" prop="sellingPrice">
+          <el-input
+            style="width: 300px"
+            min="0"
+            type="number"
+            placeholder="请输入商品售价"
+            v-model="goodForm.sellingPrice"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="商品库存" prop="stockNum">
+          <el-input
+            style="width: 300px"
+            min="0"
+            type="number"
+            placeholder="请输入商品库存"
+            v-model="goodForm.goodsName"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="商品标签" prop="tag">
+          <el-input
+            style="width: 300px"
+            placeholder="请输入商品小标签"
+            v-model="goodForm.tag"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="上架状态" prop="goodsSellStatus">
+          <el-radio-group v-model="goodForm.goodsSellStatus">
+            <el-radio label="0">上架</el-radio>
+            <el-radio label="1">下架</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item required label="商品主图" prop="goodsCoverImg">
+          <el-upload
+            class="avatar-uploader"
+            :action="uploadImgServer"
+            accept="jpg,jpeg,png"
+            :show-file-list="false"
+          >
+            <img
+              class="avatar"
+              style="width: 100px; height: 100px; border: 1px solid #e9e9e9"
+              v-if="goodForm.goodsCoverImg"
+              :src="goodForm.goodsCoverImg"
+            />
+            <el-icon v-else class="avatar-uploader-icon"><Camera /></el-icon>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="详情内容">
+          <div ref="editor"></div>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitAdd()">{{
+            state.id ? "立即修改" : "立即创建"
+          }}</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+  </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue';
-import { useRoute, useRouter } from 'vue-router'
-const route = useRoute()
-const { id } = route.query
+import {
+  reactive,
+  onMounted,
+  onBeforeUnmount,
+  ref,
+  getCurrentInstance
+} from "vue";
+import { useRoute, useRouter } from "vue-router";
+import axios from "@/utils/axios";
+import WangEditor from "wangeditor";
+import { Camera } from "@element-plus/icons-vue";
+import { localGet, uploadImgServer, uploadImgsServer } from "@/utils";
+
+// 获取当前组件的实例、上下文来操作router和vuex
+const { proxy } = getCurrentInstance();
+const goodRef = ref(null);
+const editor = ref(null);
+const route = useRoute();
+const router = useRouter();
+const { id } = route.query;
 
 const state = reactive({
-    id: id,
-    defaultCase: ''
+  uploadImgServer,
+  token: localGet("token") || "",
+  id: id,
+  defaultCase: "",
+  categoryId: '',
+  category: {
+      lazy: true,
+      lazyLoad(node, resolve) {
+          const { level = 0, value } = node
+          axios.get('/categories', {
+              params: {
+                  pageNumber: 1,
+                  pageSize: 1000,
+                  categoryLevel: level + 1,
+                  parentId: value || 0
+              }
+          }).then(res => {
+              const list = res.list
+              const nodes = list.map(item => ({
+                  value: item.categoryId,
+                  label: item.categoryName,
+                  leaf: level > 1
+              }))
+              resolve(nodes)
+          })
+      }
+  }
+});
+const goodForm = reactive({
+  goodsName: "",
+  goodsIntro: "",
+  originalPrice: "",
+  sellingPrice: "",
+  stockNum: "",
+  goodsSellStatus: "0",
+  goodsCoverImg: "",
+  tag: "",
+});
+const rules = reactive({
+  goodsName: [
+    { required: "true", message: "请填写商品名称", trigger: ["change"] },
+  ],
+  originalPrice: [
+    { required: "true", message: "请填写商品价格", trigger: ["change"] },
+  ],
+  sellingPrice: [
+    { required: "true", message: "请填写商品售价", trigger: ["change"] },
+  ],
+  stockNum: [
+    { required: "true", message: "请填写商品库存", trigger: ["change"] },
+  ],
+  goodsCoverImg: [
+    { required: "true", message: "请上传主图", trigger: ["change"] },
+  ],
+});
+
+const handleChangeCate = ((val) => {
+    console.log('res+++++++++', val);
+    state.categoryId = val[2] || ''
 })
+
+let instance;
+onMounted(() => {
+  instance = new WangEditor(editor.value);
+  instance.config.showLinkImg = false;
+  instance.config.showLinkImgAlt = false;
+  instance.config.showLinkImgHref = false;
+  instance.config.uploadImgMaxSize = 2 * 1024 * 1024;
+  instance.config.uploadFileName = "file";
+  instance.config.uploadImgHeaders = {
+    token: state.token,
+  };
+  // 图片返回格式不同，需要自定义返回格式
+  instance.config.uploadImgHooks = {
+    // 图片上传并返回了结果，想要自己把图片插入到编辑器中
+    // 例如服务器返回的不是 { errno: 0, data: [...] } 这种格式，可使用 customInsert
+    customInsert: function (insertImgFn, result) {
+      // result 即为服务端返回的接口
+      // insertImgFn 可把图片插入到编辑器，传入图片 src，执行函数即可
+      if (result.data && result.data.length) {
+        result.data.forEach((item) => insertImgFn(item));
+      }
+    },
+  };
+  instance.config.uploadImgServer = uploadImgsServer;
+  Object.assign(instance.config, {
+    onchange() {
+      console.log("change");
+    },
+  });
+  instance.create();
+});
+
+const submitAdd = () => {
+    goodRef.value.validate((valid) => {
+        console.log('的身份哈哈使得否');
+    })
+}
+
+onBeforeUnmount(() => {
+  instance.destroy();
+  instance = null;
+});
 </script>
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .add {
-    display: flex;
-    .add-container {
-        flex: 1;
-        height: 100%;
-    }
+  display: flex;
+  .add-container {
+    flex: 1;
+    height: 100%;
+  }
+  .avatar-uploader {
+    width: 100px;
+    height: 100px;
+    color: #ddd;
+    font-size: 30px;
+  }
+  .avatar-uploader-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 1px solid #e9e9e9;
+    padding: 32px 17px;
+  }
 }
 </style>
