@@ -55,7 +55,7 @@
             min="0"
             type="number"
             placeholder="请输入商品库存"
-            v-model="goodForm.goodsName"
+            v-model="goodForm.stockNum"
           ></el-input>
         </el-form-item>
         <el-form-item label="商品标签" prop="tag">
@@ -74,9 +74,12 @@
         <el-form-item required label="商品主图" prop="goodsCoverImg">
           <el-upload
             class="avatar-uploader"
-            :action="uploadImgServer"
+            :action="state.uploadImgServer"
             accept="jpg,jpeg,png"
             :show-file-list="false"
+            :headers="{token: state.token}"
+            :before-upload="handleBeforeUpload"
+            :on-success="handleUrlSuccess"
           >
             <img
               class="avatar"
@@ -106,13 +109,14 @@ import {
   onMounted,
   onBeforeUnmount,
   ref,
-  getCurrentInstance
+  getCurrentInstance,
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "@/utils/axios";
 import WangEditor from "wangeditor";
 import { Camera } from "@element-plus/icons-vue";
 import { localGet, uploadImgServer, uploadImgsServer } from "@/utils";
+import { ElMessage } from "element-plus";
 
 // 获取当前组件的实例、上下文来操作router和vuex
 const { proxy } = getCurrentInstance();
@@ -127,29 +131,31 @@ const state = reactive({
   token: localGet("token") || "",
   id: id,
   defaultCase: "",
-  categoryId: '',
+  categoryId: "",
   category: {
-      lazy: true,
-      lazyLoad(node, resolve) {
-          const { level = 0, value } = node
-          axios.get('/categories', {
-              params: {
-                  pageNumber: 1,
-                  pageSize: 1000,
-                  categoryLevel: level + 1,
-                  parentId: value || 0
-              }
-          }).then(res => {
-              const list = res.list
-              const nodes = list.map(item => ({
-                  value: item.categoryId,
-                  label: item.categoryName,
-                  leaf: level > 1
-              }))
-              resolve(nodes)
-          })
-      }
-  }
+    lazy: true,
+    lazyLoad(node, resolve) {
+      const { level = 0, value } = node;
+      axios
+        .get("/categories", {
+          params: {
+            pageNumber: 1,
+            pageSize: 1000,
+            categoryLevel: level + 1,
+            parentId: value || 0,
+          },
+        })
+        .then((res) => {
+          const list = res.list;
+          const nodes = list.map((item) => ({
+            value: item.categoryId,
+            label: item.categoryName,
+            leaf: level > 1,
+          }));
+          resolve(nodes);
+        });
+    },
+  },
 });
 const goodForm = reactive({
   goodsName: "",
@@ -179,10 +185,22 @@ const rules = reactive({
   ],
 });
 
-const handleChangeCate = ((val) => {
-    console.log('res+++++++++', val);
-    state.categoryId = val[2] || ''
-})
+const handleChangeCate = (val) => {
+  console.log("res+++++++++", val);
+  state.categoryId = val[2] || "";
+};
+
+const handleBeforeUpload = () => {
+    const sufix = file.name.split('.')[1] || ''
+    if(!['jpg', 'jpeg', 'png'].includes(sufix)) {
+        ElMessage.error('请上传 jpg、jpeg、png 格式的图片')
+        return false
+    }
+}
+
+const handleUrlSuccess = (val) => {
+    goodForm.goodsCoverImg = val.data || ''
+}
 
 let instance;
 onMounted(() => {
@@ -215,23 +233,61 @@ onMounted(() => {
   });
   instance.create();
   if (id) {
-      axios.get(`/goods/${id}`).then(res => {
-          
-      })
+    axios.get(`/goods/${id}`).then((res) => {
+      const { goods, firstCategory, secondCategory, thirdCategory } = res;
+      goodForm = {
+        goodsName: goods.goodsName,
+        goodsIntro: goods.goodsIntro,
+        originalPrice: goods.originalPrice,
+        sellingPrice: goods.sellingPrice,
+        stockNum: goods.stockNum,
+        goodsSellStatus: String(goods.goodsSellStatus),
+        goodsCoverImg: proxy.$filters.prefix(goods.goodsCoverImg),
+        tag: goods.tag,
+        categoryId: goods.goodsCategoryId
+      };
+      state.categoryId = goods.goodsCategoryId
+      state.defaultCase = `${firstCategory.categoryName}/${secondCategory.categoryName}/${thirdCategory.categoryName}`
+      if(instance) {
+        // 初始化商品详情 html
+        instance.txt.html(goods.goodsDetailContent)
+      }
+    });
   }
 });
 
 const submitAdd = () => {
-    goodRef.value.validate((valid) => {
-        if(valid) {
-            let httpOption = axios.post
-            let params = {
-                goodsCategoryId: state.categoryId,
-                goodsCoverImg: state.goodForm.goodsCoverImg,
-            }
-        }
-    })
-}
+  goodRef.value.validate((valid) => {
+    if (valid) {
+      let httpOption = axios.post;
+      let params = {
+        goodsName: goodForm.goodsName,
+        goodsIntro: goodForm.goodsIntro,
+        originalPrice: goodForm.originalPrice,
+        sellingPrice: goodForm.sellingPrice,
+        stockNum: goodForm.stockNum,
+        goodsSellStatus: goodForm.goodsSellStatus,
+        goodsCoverImg: goodForm.goodsCoverImg,
+        tag: goodForm.tag,
+        goodsCategoryId: state.categoryId,
+        goodsDetailContent: instance.txt.html()
+      };
+      if(params.goodsName.length > 128) {
+          ElMessage.error('商品名称不能超过128个字符')
+          return
+      }
+      if(params.goodsIntro.length > 200) {
+          ElMessage.error('商品简介不能超过200个字符')
+          return
+      }
+      if(params.tag.length > 16) {
+          ElMessage.error('商品标签不能超过16个字符')
+          return
+      }
+      console.log('参数通过', params);
+    }
+  });
+};
 
 onBeforeUnmount(() => {
   instance.destroy();
