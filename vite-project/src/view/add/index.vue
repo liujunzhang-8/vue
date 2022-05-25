@@ -71,15 +71,15 @@
             <el-radio label="1">下架</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item required label="商品主图" prop="goodsCoverImg">
+        <el-form-item label="商品主图" prop="goodsCoverImg">
           <el-upload
             class="avatar-uploader"
-            :action="state.uploadImgServer"
             accept="jpg,jpeg,png"
+            action="https://jsonplaceholder.typicode.com/posts/"
             :show-file-list="false"
-            :headers="{token: state.token}"
             :before-upload="handleBeforeUpload"
             :on-success="handleUrlSuccess"
+            :on-error="handleError"
           >
             <img
               class="avatar"
@@ -87,7 +87,7 @@
               v-if="goodForm.goodsCoverImg"
               :src="goodForm.goodsCoverImg"
             />
-            <el-icon v-else class="avatar-uploader-icon"><Camera /></el-icon>
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
           </el-upload>
         </el-form-item>
         <el-form-item label="详情内容">
@@ -114,7 +114,7 @@ import {
 import { useRoute, useRouter } from "vue-router";
 import axios from "@/utils/axios";
 import WangEditor from "wangeditor";
-import { Camera } from "@element-plus/icons-vue";
+import { Plus } from "@element-plus/icons-vue";
 import { localGet, uploadImgServer, uploadImgsServer } from "@/utils";
 import { ElMessage } from "element-plus";
 
@@ -125,9 +125,9 @@ const editor = ref(null);
 const route = useRoute();
 const router = useRouter();
 const { id } = route.query;
+const imgServer = ref(uploadImgServer);
 
 const state = reactive({
-  uploadImgServer,
   token: localGet("token") || "",
   id: id,
   defaultCase: "",
@@ -190,17 +190,24 @@ const handleChangeCate = (val) => {
   state.categoryId = val[2] || "";
 };
 
-const handleBeforeUpload = () => {
-    const sufix = file.name.split('.')[1] || ''
-    if(!['jpg', 'jpeg', 'png'].includes(sufix)) {
-        ElMessage.error('请上传 jpg、jpeg、png 格式的图片')
-        return false
-    }
-}
+const handleBeforeUpload = (rawFile) => {
+  if (rawFile.type !== "image/jpeg") {
+    ElMessage.error("Avatar picture must be JPG format!");
+    return false;
+  } else if (rawFile.size / 1024 / 1024 > 2) {
+    ElMessage.error("Avatar picture size can not exceed 2MB!");
+    return false;
+  }
+  return true;
+};
 
 const handleUrlSuccess = (val) => {
-    goodForm.goodsCoverImg = val.data || ''
-}
+  goodForm.goodsCoverImg = val.data || "";
+};
+
+const handleError = (err) => {
+  console.log(err, "为啥什么二百都不地方");
+};
 
 let instance;
 onMounted(() => {
@@ -244,13 +251,13 @@ onMounted(() => {
         goodsSellStatus: String(goods.goodsSellStatus),
         goodsCoverImg: proxy.$filters.prefix(goods.goodsCoverImg),
         tag: goods.tag,
-        categoryId: goods.goodsCategoryId
+        categoryId: goods.goodsCategoryId,
       };
-      state.categoryId = goods.goodsCategoryId
-      state.defaultCase = `${firstCategory.categoryName}/${secondCategory.categoryName}/${thirdCategory.categoryName}`
-      if(instance) {
+      state.categoryId = goods.goodsCategoryId;
+      state.defaultCase = `${firstCategory.categoryName}/${secondCategory.categoryName}/${thirdCategory.categoryName}`;
+      if (instance) {
         // 初始化商品详情 html
-        instance.txt.html(goods.goodsDetailContent)
+        instance.txt.html(goods.goodsDetailContent);
       }
     });
   }
@@ -270,21 +277,21 @@ const submitAdd = () => {
         goodsCoverImg: goodForm.goodsCoverImg,
         tag: goodForm.tag,
         goodsCategoryId: state.categoryId,
-        goodsDetailContent: instance.txt.html()
+        goodsDetailContent: instance.txt.html(),
       };
-      if(params.goodsName.length > 128) {
-          ElMessage.error('商品名称不能超过128个字符')
-          return
+      if (params.goodsName.length > 128) {
+        ElMessage.error("商品名称不能超过128个字符");
+        return;
       }
-      if(params.goodsIntro.length > 200) {
-          ElMessage.error('商品简介不能超过200个字符')
-          return
+      if (params.goodsIntro.length > 200) {
+        ElMessage.error("商品简介不能超过200个字符");
+        return;
       }
-      if(params.tag.length > 16) {
-          ElMessage.error('商品标签不能超过16个字符')
-          return
+      if (params.tag.length > 16) {
+        ElMessage.error("商品标签不能超过16个字符");
+        return;
       }
-      console.log('参数通过', params);
+      console.log("参数通过", params);
     }
   });
 };
@@ -309,9 +316,10 @@ onBeforeUnmount(() => {
   }
   .avatar-uploader-icon {
     display: block;
-    width: 100%;
+    width: 64px;
     height: 100%;
     border: 1px solid #e9e9e9;
+    text-align: center;
     padding: 32px 17px;
   }
 }
