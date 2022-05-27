@@ -77,7 +77,6 @@
 import { reactive, onMounted, ref } from "vue";
 import { Plus, Delete } from "@element-plus/icons-vue";
 import axios from "@/utils/axios";
-import { ElMessage } from "element-plus";
 import DialogAddSwiper from '@/components/DialogAddSwiper.vue'
 
 const multipleTable = ref(null);
@@ -98,6 +97,10 @@ onMounted(() => {
 
 // 获取轮播图列表
 const getCarousels = () => {
+    if(state.currentPage == undefined) {
+        state.currentPage = 1
+    }
+    console.log(state.currentPage, 'zhishiduoshao')
   state.loading = true;
   axios
     .get("/carousels", {
