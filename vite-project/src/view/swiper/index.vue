@@ -2,7 +2,7 @@
   <el-card class="swiper-container">
     <template #header>
       <div class="header">
-        <el-button type="primary" :icon="Plus">增加</el-button>
+        <el-button type="primary" :icon="Plus" @click="handleAdd">增加</el-button>
         <el-popconfirm title="确定删除吗?">
           <template #reference>
             <el-button type="danger" :icon="Delete">批量删除</el-button>
@@ -70,6 +70,7 @@
       @current-change="changePage"
     />
   </el-card>
+  <DialogAddSwiper ref="addGood" :reload="getCarousels" :type="type" />
 </template>
 
 <script setup>
@@ -77,6 +78,7 @@ import { reactive, onMounted, ref } from "vue";
 import { Plus, Delete } from "@element-plus/icons-vue";
 import axios from "@/utils/axios";
 import { ElMessage } from "element-plus";
+import DialogAddSwiper from '@/components/DialogAddSwiper.vue'
 
 const multipleTable = ref(null);
 const addGood = ref(null);
@@ -105,7 +107,6 @@ const getCarousels = () => {
       },
     })
     .then((res) => {
-      console.log(res, "获取到数据");
       state.tableData = res.list;
       state.total = res.totalCount;
       state.currentPage = res.currentPage;
@@ -113,9 +114,16 @@ const getCarousels = () => {
     });
 };
 
+// 添加轮播项
+const handleAdd = () => {
+    state.type = "add";
+    addGood.value.open();
+}
+
 // 修改轮播图
 const handleEdit = (id) => {
   state.type = "edit";
+  console.log(addGood.value, '到底咋回事');
   addGood.value.open(id);
 };
 
@@ -127,7 +135,7 @@ const handleDeleteOne = (id) => {
         ids: [id],
       },
     })
-    .then((res) => {
+    .then(res => {
       console.log(res, "res");
       ElMessage.success(res.message);
       getCarousels();
@@ -138,6 +146,7 @@ const changePage = (val) => {
   state.currentPage = val;
   getCarousels();
 };
+
 </script>
 <style lang="scss" scoped>
 .swiper-container {
