@@ -70,7 +70,7 @@
       @current-change="changePage"
     />
   </el-card>
-  <DialogAddSwiper ref="addGood" :reload="getCarousels" :type="type" />
+  <DialogAddSwiper ref="addGood" :reload="getCarousels" :type="state.type" />
 </template>
 
 <script setup>
@@ -123,7 +123,7 @@ const handleAdd = () => {
 // 修改轮播图
 const handleEdit = (id) => {
   state.type = "edit";
-  console.log(addGood.value, '到底咋回事');
+  console.log(addGood.value.open, '到底咋回事');
   addGood.value.open(id);
 };
 
