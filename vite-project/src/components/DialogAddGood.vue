@@ -1,5 +1,19 @@
 <template>
     <el-dialog :title="type == 'add' ? '添加商品' : '修改商品'" v-model="state.visible" width="400px">
+        <el-form class="good-form" label-width="100px" :model="state.ruleForm" :rules="state.rules" ref="formRef">
+            <el-form-item label="商品名称" prop="name">
+                <el-input type="text" v-model="state.ruleForm.name"></el-input>
+            </el-form-item>
+            <el-form-item label="跳转链接" prop="link">
+                <el-input type="text" v-model="state.ruleForm.link"></el-input>
+            </el-form-item>
+            <el-form-item label="商品编号" prop="id">
+                <el-input type="number" min="0" v-model="state.ruleForm.id"></el-input>
+            </el-form-item>
+            <el-form-item label="排序值" prop="sort">
+                <el-input type="number" v-model="state.ruleForm.sort"></el-input>
+            </el-form-item>
+        </el-form>
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="state.visible = false">取消</el-button>
@@ -11,6 +25,7 @@
 
 <script setup>
 import {ref, reactive, onMounted} from 'vue'
+import axios from '@/utils/axios';
 
 const props = defineProps({
   type: String,
@@ -18,19 +33,46 @@ const props = defineProps({
   configType: Number
 });
 
+const formRef = ref(null)
+
 const state = reactive({
     visible: false,
-    id: '',
     ruleForm: {
         name: '',
         link: '',
         id: '',
         sort: ''
-    }
+    },
+    rules: {
+        name: [
+            {required: 'true', message: '名称不能为空', trigger: ['change']}
+        ],
+        id: [
+            {required: 'true', message: '编号不能为空', trigger: ['change']}
+        ],
+        sort: [
+            {required: 'true', message: '排序不能为空', trigger: ['change']}
+        ]
+    },
+    id: '',
 })
 
+// 获取详情
+const getDetail = (id) => {
+    axios.get(`/indexConfigs/${id}`).then(res => {
+        state.ruleForm = {
+            name: res.configName,
+            id: res.goodsId,
+            link: res.redirectUrl,
+            sort: res.configRank
+        }
+    })
+}
+
+// 开启弹窗
 const open = (id) => {
     state.visible = true
+    console.log(id, '到底有没有获取到');
     if(id) {
         state.id = id
         getDetail(id)

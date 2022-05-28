@@ -47,12 +47,12 @@
         <template #default="scope">
           <a
             style="cursor: pointer; margin-right: 10px"
-            @click="handleEdit(scope.row.carouselId)"
+            @click="handleEdit(scope.row.configId)"
             >修改</a
           >
           <el-popconfirm
             title="确定删除吗?"
-            @confirm="handleDeleteOne(scope.row.carouselId)"
+            @confirm="handleDeleteOne(scope.row.configId)"
           >
             <template #reference>
               <a style="cursor: pointer">删除</a>
@@ -118,9 +118,17 @@ const getIndexConfig = () => {
     });
 };
 
+// 新增商品
 const handleAdd = () => {
     state.type = 'add'
     addGood.value.open()
+}
+
+// 修改商品
+const handleEdit = (id) => {
+    state.type = 'edit'
+    console.log(id, '到底闹到电话');
+    addGood.value.open(id)
 }
 
 // 批量删除
@@ -156,8 +164,9 @@ const handleSelectionChange = (val) => {
     state.multipleSelection = val
 }
 
-const changePage = () => {
-
+const changePage = (val) => {
+    state.currentPage = val
+    getIndexConfig()
 }
 
 </script>
