@@ -71,13 +71,13 @@
       @current-change="changePage"
     />
   </el-card>
-  <DialogAddSwiper ref="addGood" :reload="getCarousels" :type="state.type" />
+  <DialogAddGood ref="addGood" :reload="getIndexConfig" :type="state.type" :configType="configType" />
 </template>
 
 <script setup>
 import {ref, reactive, onMounted} from 'vue'
 import { Plus, Delete } from "@element-plus/icons-vue";
-import DialogAddSwiper from '@/components/DialogAddSwiper.vue'
+import DialogAddGood from '@/components/DialogAddGood.vue'
 import axios from '@/utils/axios';
 
 const multipleTable = ref(null);
@@ -119,15 +119,41 @@ const getIndexConfig = () => {
 };
 
 const handleAdd = () => {
-    console.log('这是添加add');
+    state.type = 'add'
+    addGood.value.open()
 }
 
+// 批量删除
 const handleDelete = () => {
     console.log('批量删除');
+    if(!state.multipleSelection.length) {
+        ElMessage.error('请选择项')
+        return
+    }
+    axios.delete('/indexConfigs', {
+        data: {
+            ids: state.multipleSelection.map(i => i.configId)
+        }
+    }).then((res) => {
+        ElMessage.success(res.message)
+        getIndexConfig()
+    })
 }
 
-const handleSelectionChange = () => {
+// 单个删除
+const handleDeleteOne = (id) => {
+    axios.delete('indexConfigs', {
+        data: {
+            ids: [id]
+        }
+    }).then((res) => {
+        ElMessage.success(res.message)
+        getIndexConfig()
+    })
+}
 
+const handleSelectionChange = (val) => {
+    state.multipleSelection = val
 }
 
 const changePage = () => {
