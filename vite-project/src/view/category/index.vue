@@ -20,30 +20,18 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55"></el-table-column>
-      <el-table-column label="商品名称" prop="configName"></el-table-column>
-      <el-table-column label="跳转链接">
-        <template #default="scope">
-          <a target="_blank" :href="scope.row.redirectUrl" alt="轮播图">{{
-            scope.row.redirectUrl
-          }}</a>
-        </template>
-      </el-table-column>
+      <el-table-column label="分类名称" prop="categoryName"></el-table-column>
       <el-table-column
-        prop="configRank"
+        prop="categoryRank"
         label="排序值"
         width="120"
-      ></el-table-column>
-      <el-table-column
-        prop="goodsId"
-        label="商品编号"
-        width="200"
       ></el-table-column>
       <el-table-column
         prop="createTime"
         label="添加时间"
         width="200"
       ></el-table-column>
-      <el-table-column label="操作" width="100">
+      <el-table-column label="操作" width="220">
         <template #default="scope">
           <a
             style="cursor: pointer; margin-right: 10px"
