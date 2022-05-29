@@ -75,11 +75,21 @@
 </template>
 
 <script setup>
-import {ref, reactive, onMounted} from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { Plus, Delete } from "@element-plus/icons-vue";
 import DialogAddGood from '@/components/DialogAddGood.vue'
 import axios from '@/utils/axios';
+import { useRoute, useRouter } from 'vue-router';
 
+// 首页配置类型参数
+const configTypeMap = {
+    hot: 3,
+    new: 4,
+    recommend: 5
+}
+
+const router = useRouter()
+const route = useRoute()
 const multipleTable = ref(null);
 const addGood = ref(null);
 const state = reactive({
@@ -168,6 +178,25 @@ const changePage = (val) => {
     state.currentPage = val
     getIndexConfig()
 }
+
+// 监听路由变化
+const unwatch = router.beforeEach((to) => {
+    if (['hot', 'new', 'recommend'].includes(to.name)) {
+        state.configType = configTypeMap[to.name]
+        state.currentPage = 1
+        getIndexConfig()
+    }
+})
+
+// 初始化
+onMounted(() => {
+    state.configType = configTypeMap[route.name]
+    getIndexConfig()
+})
+
+onUnmounted(() => {
+    unwatch()
+})
 
 </script>
 <style lang='scss' scoped>

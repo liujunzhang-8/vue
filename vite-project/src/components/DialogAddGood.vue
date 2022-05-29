@@ -17,7 +17,7 @@
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="state.visible = false">取消</el-button>
-                <el-button type="primary" @click="state.visible = false">确定</el-button>
+                <el-button type="primary" @click="submitForm">确定</el-button>
             </span>
         </template>
     </el-dialog>
@@ -26,6 +26,7 @@
 <script setup>
 import {ref, reactive, onMounted} from 'vue'
 import axios from '@/utils/axios';
+import { ElMessage } from 'element-plus';
 
 const props = defineProps({
   type: String,
@@ -84,6 +85,47 @@ const open = (id) => {
             sort: ''
         }
     }
+}
+
+const submitForm = () => {
+    formRef.value.validate((valid) => {
+        if(valid) {
+            if(state.ruleForm.name.length > 128) {
+                ElMessage.error('商品名称不能超过128个字符')
+                return
+            }
+            if(state.ruleForm.sort < 0 || state.ruleForm.sort > 200) {
+                ElMessage.error('排序值不能小于 0 或大于 200')
+                return
+            }
+            if(props.type == 'add') {
+                axios.post('/indexConfigs', {
+                    configType: props.configType || 3,
+                    configName: state.ruleForm.name,
+                    redirectUrl: state.ruleForm.link,
+                    goodsId: state.ruleForm.id,
+                    configRank: state.ruleForm.sort
+                }).then((res) => {
+                    ElMessage.success(res.message)
+                    state.visible = false
+                    if(props.reload) props.reload()
+                })
+            } else {
+                axios.post('/indexConfigs', {
+                    configId: state.id,
+                    configType: props.configType || 3,
+                    configName: state.ruleForm.name,
+                    redirectUrl: state.ruleForm.link,
+                    goodsId: state.ruleForm.id,
+                    configRank: state.ruleForm.sort
+                }).then((res) => {
+                    ElMessage.success(res.message)
+                    state.visible = false
+                    if(props.reload) props.reload()
+                })
+            }
+        }
+    })
 }
 
 defineExpose({ open });
