@@ -47,7 +47,24 @@
       <el-table-column prop="orderStatus" label="订单状态">
         <template #default="scope">
           <span>
-            {{ scope.row.orderStatus }}
+            {{
+              scope.row.orderStatus == 0
+                ? "待支付"
+                : scope.row.orderStatus == 1
+                ? "已支付"
+                : scope.row.orderStatus == 2
+                ? "配货完成"
+                : scope.row.orderStatus == 3
+                ? "出库成功"
+                : scope.row.orderStatus == 4
+                ? "交易成功"
+                : scope.row.orderStatus == -1
+                ? "手动关闭"
+                : scope.row.orderStatus == -2
+                ? "超时关闭"
+                : scope.row.orderStatus == -3
+                ? "商家关闭" : '未知状态'
+            }}
           </span>
         </template>
       </el-table-column>
@@ -61,17 +78,29 @@
       <el-table-column prop="createTime" label="创建时间"></el-table-column>
       <el-table-column label="操作">
         <template #default="scope">
-          <el-popconfirm v-if="scope.row.orderStatus == 1" title="确定配货完成吗?" @confirm="handleConfig(scope.row.orderId)">
+          <el-popconfirm
+            v-if="scope.row.orderStatus == 1"
+            title="确定配货完成吗?"
+            @confirm="handleConfig(scope.row.orderId)"
+          >
             <template #reference>
               <a style="cursor: pointer; margin-right: 10px">配货完成</a>
             </template>
           </el-popconfirm>
-          <el-popconfirm v-if="scope.row.orderStatus == 2" title="确定出库吗?" @confirm="handleSend(scope.row.orderId)">
+          <el-popconfirm
+            v-if="scope.row.orderStatus == 2"
+            title="确定出库吗?"
+            @confirm="handleSend(scope.row.orderId)"
+          >
             <template #reference>
               <a style="cursor: pointer; margin-right: 10px">出库</a>
             </template>
           </el-popconfirm>
-          <el-popconfirm v-if="scope.row.orderStatus == 4 || scope.row.orderStatus < 0" title="确定关闭订单吗?" @confirm="handleClose(scope.row.orderId)">
+          <el-popconfirm
+            v-if="scope.row.orderStatus == 4 || scope.row.orderStatus < 0"
+            title="确定关闭订单吗?"
+            @confirm="handleClose(scope.row.orderId)"
+          >
             <template #reference>
               <a style="cursor: pointer; margin-right: 10px">关闭订单</a>
             </template>
@@ -172,27 +201,6 @@ const getOrderList = () => {
     })
     .then((res) => {
       state.tableData = res.list;
-      state.tableData.forEach(item => {
-          if(item.orderStatus == 0) {
-              item.orderStatus = '待支付'
-          } else if (item.orderStatus == 1) {
-              item.orderStatus = '已支付'
-          } else if (item.orderStatus == 2) {
-              item.orderStatus = '配货完成'
-          } else if (item.orderStatus == 3) {
-              item.orderStatus = '出库成功'
-          } else if (item.orderStatus == 4) {
-              item.orderStatus = '交易成功'
-          } else if (item.orderStatus == -1) {
-              item.orderStatus = '手动关闭'
-          } else if (item.orderStatus == -2) {
-              item.orderStatus = '超时关闭'
-          } else if (item.orderStatus == -3) {
-              item.orderStatus = '商家关闭'
-          } else {
-              item.orderStatus = '未知状态'
-          }
-      })
       state.total = res.totalCount;
       state.currentPage = res.currentPage;
       state.loading = false;
