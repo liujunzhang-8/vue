@@ -55,7 +55,19 @@ const routes = [
     {
         name: 'category',
         path: '/category',
-        component: () => import('@/view/category/index.vue')
+        component: () => import('@/view/category/index.vue'),
+        children: [
+            {
+                name: 'level2',
+                path: '/category/level2',
+                component: () => import('@/view/category/index.vue'), 
+            },
+            {
+                name: 'level3',
+                path: '/category/level2',
+                component: () => import('@/view/category/index.vue'),
+            },
+        ]
     },
     /** 商品管理 */
     {

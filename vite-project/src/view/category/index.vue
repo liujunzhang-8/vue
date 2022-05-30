@@ -64,13 +64,13 @@
       @current-change="changePage"
     />
   </el-card>
-  <DialogAddGood ref="addGood" :reload="getIndexConfig" :type="state.type" :configType="configType" />
+  <DialogAddCategory ref="addGood" :reload="getCategory" :type="state.type" :level="state.level" :parent_id="state.parent_id" />
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { Plus, Delete } from "@element-plus/icons-vue";
-import DialogAddGood from '@/components/DialogAddGood.vue'
+import DialogAddCategory from '@/components/DialogAddCategory.vue'
 import axios from '@/utils/axios';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -101,6 +101,7 @@ onMounted(() => {
     getCategory()
 })
 
+// 获取分类列表
 const getCategory = () => {
     if(state.currentPage == undefined) {
         state.currentPage = 1
@@ -146,7 +147,13 @@ const handleNext = (item) => {
         ElMessage.error('没有下一级')
         return
     }
-
+    router.push({
+        name: `level${levelNumber}`,
+        query: {
+            level: levelNumber,
+            parent_id: item.categoryId
+        }
+    })
 }
 
 // 批量删除
@@ -189,7 +196,7 @@ const changePage = (val) => {
 
 // 监听路由变化
 const unwatch = router.beforeEach((to) => {
-    if (['hot', 'new', 'recommend'].includes(to.name)) {
+    if (['category', 'level2', 'level3'].includes(to.name)) {
         state.configType = configTypeMap[to.name]
         state.currentPage = 1
         getCategory()
