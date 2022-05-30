@@ -116,7 +116,6 @@ import axios from "@/utils/axios";
 import WangEditor from "wangeditor";
 import { Plus } from "@element-plus/icons-vue";
 import { localGet, uploadImgServer, uploadImgsServer } from "@/utils";
-import { ElMessage } from "element-plus";
 
 // 获取当前组件的实例、上下文来操作router和vuex
 const { proxy } = getCurrentInstance();
