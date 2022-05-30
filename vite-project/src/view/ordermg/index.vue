@@ -47,7 +47,7 @@
       <el-table-column prop="orderStatus" label="订单状态">
         <template #default="scope">
           <span>
-            {{ scope.row.orderNoStatus }}
+            {{ scope.row.orderStatus }}
           </span>
         </template>
       </el-table-column>
@@ -172,6 +172,27 @@ const getOrderList = () => {
     })
     .then((res) => {
       state.tableData = res.list;
+      state.tableData.forEach(item => {
+          if(item.orderStatus == 0) {
+              item.orderStatus = '待支付'
+          } else if (item.orderStatus == 1) {
+              item.orderStatus = '已支付'
+          } else if (item.orderStatus == 2) {
+              item.orderStatus = '配货完成'
+          } else if (item.orderStatus == 3) {
+              item.orderStatus = '出库成功'
+          } else if (item.orderStatus == 4) {
+              item.orderStatus = '交易成功'
+          } else if (item.orderStatus == -1) {
+              item.orderStatus = '手动关闭'
+          } else if (item.orderStatus == -2) {
+              item.orderStatus = '超时关闭'
+          } else if (item.orderStatus == -3) {
+              item.orderStatus = '商家关闭'
+          } else {
+              item.orderStatus = '未知状态'
+          }
+      })
       state.total = res.totalCount;
       state.currentPage = res.currentPage;
       state.loading = false;
