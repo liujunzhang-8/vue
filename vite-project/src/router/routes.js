@@ -93,13 +93,12 @@ const routes = [
         path: '/account',
         component: () => import('@/view/account/index.vue')
     },
-    /** 
-     * 
-    level2: '分类二级管理',
-    level3: '分类三级管理',
-    order_detail: '订单详情',
-     * 
-     */
+    /** 订单详情 */
+    {
+        name: 'order_detail',
+        path: '/order_detail',
+        component: () => import('@/view/orderDetail/index.vue')
+    },
 ]
 
 export default routes

@@ -212,35 +212,70 @@ const handleOption = () => {
   getOrderList();
 };
 
-// 解除禁用
-const handleSolve = () => {
-  if (!state.multipleSelection.length) {
-    ElMessage.error("请选择项");
-    return;
-  }
+// 配货
+const handleConfig = (id) => {
+  console.log('id', id)
+    let params
+    if(id) {
+        params = [id]
+    } else {
+        if(!state.multipleSelection.length) {
+            ElMessage.error('请选择项')
+            return
+        }
+        params = state.multipleSelection.map(i => i.orderId)
+    }
   axios
-    .put(`/users/0`, {
-      ids: state.multipleSelection.map((item) => item.userId),
+    .put('/orders/checkDone', {
+      ids: params,
     })
     .then(() => {
-      ElMessage.success("解除成功");
+      ElMessage.success("配货成功");
       getOrderList();
     });
 };
 
-// 禁用账号
-const handleForbid = () => {
-  if (!state.multipleSelection.length) {
-    ElMessage.error("请选择项");
-    return;
-  }
+// 出库
+const handleSend = (id) => {
+    let params
+    if(id) {
+        params = [id]
+    } else {
+        if(!state.multipleSelection.length) {
+            ElMessage.error('请选择项')
+            return
+        }
+        params = state.multipleSelection.map(i => i.orderId)
+    }
   axios
-    .put(`/users/1`, {
-      ids: state.multipleSelection.map((item) => item.userId),
+    .put('/orders/checkOut', {
+      ids: params,
     })
     .then(() => {
-      ElMessage.success("禁用成功");
-      getGuestList();
+      ElMessage.success("出库成功");
+      getOrderList();
+    });
+};
+
+// 关闭
+const handleClose = (id) => {
+    let params
+    if(id) {
+        params = [id]
+    } else {
+        if(!state.multipleSelection.length) {
+            ElMessage.error('请选择项')
+            return
+        }
+        params = state.multipleSelection.map(i => i.orderId)
+    }
+  axios
+    .put('/orders/close', {
+      ids: params,
+    })
+    .then(() => {
+      ElMessage.success("出库成功");
+      getOrderList();
     });
 };
 
@@ -253,7 +288,6 @@ const changePage = (val) => {
   getOrderList();
 };
 
-onUnmounted(() => {});
 </script>
 <style lang="scss" scoped>
 .order-container {
