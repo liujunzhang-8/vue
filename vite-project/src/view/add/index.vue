@@ -157,7 +157,7 @@ const state = reactive({
     },
   },
 });
-let goodForm = ref({
+const goodForm = reactive({
   goodsName: "",
   goodsIntro: "",
   originalPrice: "",
@@ -186,7 +186,6 @@ const rules = reactive({
 });
 
 const handleChangeCate = (val) => {
-  console.log("res+++++++++", val);
   state.categoryId = val[2] || "";
 };
 
@@ -199,7 +198,8 @@ const handleBeforeUpload = (file) => {
 };
 
 const handleUrlSuccess = (val) => {
-  goodForm.goodsCoverImg = val.data || "";
+  goodForm.value.goodsCoverImg = val.data || "";
+  console.log(goodForm.value.goodsCoverImg, '获取到的图片');
 };
 
 const handleError = (err) => {
@@ -262,6 +262,7 @@ onMounted(() => {
 });
 
 const submitAdd = () => {
+    console.log('咋没反应', goodRef.value.validate);
   goodRef.value.validate((valid) => {
     if (valid) {
       let httpOption = axios.post;
