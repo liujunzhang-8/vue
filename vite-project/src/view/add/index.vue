@@ -2,7 +2,7 @@
   <div class="add">
     <el-card class="add-container">
       <el-form
-        :model="goodForm"
+        :model="state.goodForm"
         :rules="rules"
         label-width="100px"
         ref="goodRef"
@@ -20,7 +20,7 @@
           <el-input
             style="width: 300px"
             placeholder="请输入商品名称"
-            v-model="goodForm.goodsName"
+            v-model="state.goodForm.goodsName"
           ></el-input>
         </el-form-item>
         <el-form-item label="商品简介" prop="goodsIntro">
@@ -28,7 +28,7 @@
             style="width: 300px"
             type="textarea"
             placeholder="请输入商品简介(100字)"
-            v-model="goodForm.goodsIntro"
+            v-model="state.goodForm.goodsIntro"
           ></el-input>
         </el-form-item>
         <el-form-item label="商品价格" prop="originalPrice">
@@ -37,7 +37,7 @@
             min="0"
             type="number"
             placeholder="请输入商品价格"
-            v-model="goodForm.originalPrice"
+            v-model="state.goodForm.originalPrice"
           ></el-input>
         </el-form-item>
         <el-form-item label="商品售卖价" prop="sellingPrice">
@@ -46,7 +46,7 @@
             min="0"
             type="number"
             placeholder="请输入商品售价"
-            v-model="goodForm.sellingPrice"
+            v-model="state.goodForm.sellingPrice"
           ></el-input>
         </el-form-item>
         <el-form-item label="商品库存" prop="stockNum">
@@ -55,18 +55,18 @@
             min="0"
             type="number"
             placeholder="请输入商品库存"
-            v-model="goodForm.stockNum"
+            v-model="state.goodForm.stockNum"
           ></el-input>
         </el-form-item>
         <el-form-item label="商品标签" prop="tag">
           <el-input
             style="width: 300px"
             placeholder="请输入商品小标签"
-            v-model="goodForm.tag"
+            v-model="state.goodForm.tag"
           ></el-input>
         </el-form-item>
         <el-form-item label="上架状态" prop="goodsSellStatus">
-          <el-radio-group v-model="goodForm.goodsSellStatus">
+          <el-radio-group v-model="state.goodForm.goodsSellStatus">
             <el-radio label="0">上架</el-radio>
             <el-radio label="1">下架</el-radio>
           </el-radio-group>
@@ -77,7 +77,7 @@
             accept="jpg,jpeg,png"
             :action="state.uploadImgServer"
             :show-file-list="false"
-            :headers="{token: state.token}"
+            :headers="{ token: state.token }"
             :before-upload="handleBeforeUpload"
             :on-success="handleUrlSuccess"
             :on-error="handleError"
@@ -85,8 +85,8 @@
             <img
               class="avatar"
               style="width: 100px; height: 100px; border: 1px solid #e9e9e9"
-              v-if="goodForm.goodsCoverImg"
-              :src="goodForm.goodsCoverImg"
+              v-if="state.goodForm.goodsCoverImg"
+              :src="state.goodForm.goodsCoverImg"
             />
             <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
           </el-upload>
@@ -127,10 +127,20 @@ const router = useRouter();
 const { id } = route.query;
 
 const state = reactive({
-    uploadImgServer,
+  uploadImgServer,
   token: localGet("token") || "",
   id: id,
   defaultCase: "",
+  goodForm: {
+    goodsName: "",
+    goodsIntro: "",
+    originalPrice: "",
+    sellingPrice: "",
+    stockNum: "",
+    goodsSellStatus: "0",
+    goodsCoverImg: "",
+    tag: "",
+  },
   categoryId: "",
   category: {
     lazy: true,
@@ -157,16 +167,6 @@ const state = reactive({
     },
   },
 });
-const goodForm = reactive({
-  goodsName: "",
-  goodsIntro: "",
-  originalPrice: "",
-  sellingPrice: "",
-  stockNum: "",
-  goodsSellStatus: "0",
-  goodsCoverImg: "",
-  tag: "",
-});
 const rules = reactive({
   goodsName: [
     { required: "true", message: "请填写商品名称", trigger: ["change"] },
@@ -190,16 +190,16 @@ const handleChangeCate = (val) => {
 };
 
 const handleBeforeUpload = (file) => {
-  const sufix = file.name.split('.')[1] || ''
-  if(!['jpg', 'jpeg', 'png'].includes(sufix)) {
-      ElMessage.error('请上传 jpg、jpeg、png 格式的图片')
-      return false;
+  const sufix = file.name.split(".")[1] || "";
+  if (!["jpg", "jpeg", "png"].includes(sufix)) {
+    ElMessage.error("请上传 jpg、jpeg、png 格式的图片");
+    return false;
   }
 };
 
 const handleUrlSuccess = (val) => {
-  goodForm.value.goodsCoverImg = val.data || "";
-  console.log(goodForm.value.goodsCoverImg, '获取到的图片');
+  state.goodForm.goodsCoverImg = val.data || "";
+  console.log(state.goodForm.goodsCoverImg, "获取到的图片");
 };
 
 const handleError = (err) => {
@@ -239,7 +239,7 @@ onMounted(() => {
   if (id) {
     axios.get(`/goods/${id}`).then((res) => {
       const { goods, firstCategory, secondCategory, thirdCategory } = res;
-      goodForm.value = {
+      state.goodForm = {
         goodsName: goods.goodsName,
         goodsIntro: goods.goodsIntro,
         originalPrice: goods.originalPrice,
@@ -250,7 +250,7 @@ onMounted(() => {
         tag: goods.tag,
         categoryId: goods.goodsCategoryId,
       };
-      console.log(goodForm, 'goodForm')
+      console.log(state.goodForm, "goodForm");
       state.categoryId = goods.goodsCategoryId;
       state.defaultCase = `${firstCategory.categoryName}/${secondCategory.categoryName}/${thirdCategory.categoryName}`;
       if (instance) {
@@ -262,19 +262,19 @@ onMounted(() => {
 });
 
 const submitAdd = () => {
-    console.log('咋没反应', goodRef.value.validate);
   goodRef.value.validate((valid) => {
+    console.log("咋没反应", valid);
     if (valid) {
       let httpOption = axios.post;
       let params = {
-        goodsName: goodForm.goodsName,
-        goodsIntro: goodForm.goodsIntro,
-        originalPrice: goodForm.originalPrice,
-        sellingPrice: goodForm.sellingPrice,
-        stockNum: goodForm.stockNum,
-        goodsSellStatus: goodForm.goodsSellStatus,
-        goodsCoverImg: goodForm.goodsCoverImg,
-        tag: goodForm.tag,
+        goodsName: state.goodForm.goodsName,
+        goodsIntro: state.goodForm.goodsIntro,
+        originalPrice: state.goodForm.originalPrice,
+        sellingPrice: state.goodForm.sellingPrice,
+        stockNum: state.goodForm.stockNum,
+        goodsSellStatus: state.goodForm.goodsSellStatus,
+        goodsCoverImg: state.goodForm.goodsCoverImg,
+        tag: state.goodForm.tag,
         goodsCategoryId: state.categoryId,
         goodsDetailContent: instance.txt.html(),
       };
@@ -291,15 +291,15 @@ const submitAdd = () => {
         return;
       }
       console.log("参数通过", params);
-      if(id) {
-          params.goodsId = id
+      if (id) {
+        params.goodsId = id;
         //   修改商品使用 put 方法
-        httpOption = axios.put
+        httpOption = axios.put;
       }
-      httpOption('/goods', params).then(() => {
-          ElMessage.success(id ? '修改成功' : '添加成功')
-          router.push({path: '/good'})
-      })
+      httpOption("/goods", params).then(() => {
+        ElMessage.success(id ? "修改成功" : "添加成功");
+        router.push({ path: "/good" });
+      });
     }
   });
 };
