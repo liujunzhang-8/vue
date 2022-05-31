@@ -75,8 +75,9 @@
           <el-upload
             class="avatar-uploader"
             accept="jpg,jpeg,png"
-            action="https://jsonplaceholder.typicode.com/posts/"
+            :action="state.uploadImgServer"
             :show-file-list="false"
+            :headers="{token: state.token}"
             :before-upload="handleBeforeUpload"
             :on-success="handleUrlSuccess"
             :on-error="handleError"
@@ -124,9 +125,9 @@ const editor = ref(null);
 const route = useRoute();
 const router = useRouter();
 const { id } = route.query;
-const imgServer = ref(uploadImgServer);
 
 const state = reactive({
+    uploadImgServer,
   token: localGet("token") || "",
   id: id,
   defaultCase: "",
@@ -156,7 +157,7 @@ const state = reactive({
     },
   },
 });
-const goodForm = reactive({
+let goodForm = ref({
   goodsName: "",
   goodsIntro: "",
   originalPrice: "",
@@ -189,15 +190,12 @@ const handleChangeCate = (val) => {
   state.categoryId = val[2] || "";
 };
 
-const handleBeforeUpload = (rawFile) => {
-  if (rawFile.type !== "image/jpeg") {
-    ElMessage.error("Avatar picture must be JPG format!");
-    return false;
-  } else if (rawFile.size / 1024 / 1024 > 2) {
-    ElMessage.error("Avatar picture size can not exceed 2MB!");
-    return false;
+const handleBeforeUpload = (file) => {
+  const sufix = file.name.split('.')[1] || ''
+  if(!['jpg', 'jpeg', 'png'].includes(sufix)) {
+      ElMessage.error('请上传 jpg、jpeg、png 格式的图片')
+      return false;
   }
-  return true;
 };
 
 const handleUrlSuccess = (val) => {
@@ -241,17 +239,18 @@ onMounted(() => {
   if (id) {
     axios.get(`/goods/${id}`).then((res) => {
       const { goods, firstCategory, secondCategory, thirdCategory } = res;
-      goodForm = {
+      goodForm.value = {
         goodsName: goods.goodsName,
         goodsIntro: goods.goodsIntro,
         originalPrice: goods.originalPrice,
         sellingPrice: goods.sellingPrice,
         stockNum: goods.stockNum,
         goodsSellStatus: String(goods.goodsSellStatus),
-        goodsCoverImg: proxy.$filters.prefix(goods.goodsCoverImg),
+        goodsCoverImg: goods.goodsCoverImg,
         tag: goods.tag,
         categoryId: goods.goodsCategoryId,
       };
+      console.log(goodForm, 'goodForm')
       state.categoryId = goods.goodsCategoryId;
       state.defaultCase = `${firstCategory.categoryName}/${secondCategory.categoryName}/${thirdCategory.categoryName}`;
       if (instance) {
@@ -291,6 +290,15 @@ const submitAdd = () => {
         return;
       }
       console.log("参数通过", params);
+      if(id) {
+          params.goodsId = id
+        //   修改商品使用 put 方法
+        httpOption = axios.put
+      }
+      httpOption('/goods', params).then(() => {
+          ElMessage.success(id ? '修改成功' : '添加成功')
+          router.push({path: '/good'})
+      })
     }
   });
 };

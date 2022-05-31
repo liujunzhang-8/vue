@@ -26,7 +26,7 @@
         <div>{{ state.data.orderNo }}</div>
       </el-card>
     </div>
-    <el-table :data="state.tableData" style="width: 100%" tooltip-effect="dark">
+    <el-table :data="state.tableData" border style="width: 100%" tooltip-effect="dark">
       <el-table-column label="商品图片">
         <template #default="scope">
           <img
